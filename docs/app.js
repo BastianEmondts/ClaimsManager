@@ -6,9 +6,12 @@ import {
 } from "./aiMock.js";
 
 const form = document.getElementById("claim-form");
-const analyzeButton = document.getElementById("analyze-btn");
 const dashboard = document.getElementById("result-dashboard");
 const draftOutput = document.getElementById("draft-output");
+
+const MIN_NAME_LENGTH = 3; // Mindestlänge für eindeutige Claim-Bezeichnung
+const MIN_JUSTIFICATION_LENGTH = 6; // Verhindert leere/zu kurze Begründungen
+const MIN_CONTRACT_REFERENCE_LENGTH = 3; // Sicherstellt verwertbaren Vertragsbezug
 
 let latestClaim = null;
 let latestAnalysis = null;
@@ -29,10 +32,10 @@ function readFormInput() {
 
 function isValidClaimInput(claimInput) {
   return (
-    claimInput.name.length > 2 &&
+    claimInput.name.length >= MIN_NAME_LENGTH &&
     Number(claimInput.amount) > 0 &&
-    claimInput.justification.length > 5 &&
-    claimInput.contractReference.length > 2
+    claimInput.justification.length >= MIN_JUSTIFICATION_LENGTH &&
+    claimInput.contractReference.length >= MIN_CONTRACT_REFERENCE_LENGTH
   );
 }
 
@@ -66,10 +69,6 @@ form.addEventListener("submit", (event) => {
   latestAnalysis = analyzeClaimWithAI(claimInput);
   renderDashboard(latestAnalysis);
   draftOutput.value = "Analyse abgeschlossen. Wählen Sie eine Aktion zur Textgenerierung.";
-});
-
-analyzeButton.addEventListener("click", () => {
-  form.requestSubmit();
 });
 
 document.getElementById("draft-negotiation").addEventListener("click", () => {

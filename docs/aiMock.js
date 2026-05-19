@@ -19,11 +19,27 @@ const MARKET_PRICE_RANGES = {
   kabel: [22, 40],
   generic: [40, 85],
 };
+const PRICE_LOWER_TOLERANCE = 0.8;
+const PRICE_UPPER_TOLERANCE = 1.2;
+const MIN_SCHEDULE_DELAY_DAYS = 5;
+const MAX_SCHEDULE_DELAY_DAYS = 45;
+const AMOUNT_PER_DAY_FACTOR = 5000;
+const HIGH_VALUE_CLAIM_THRESHOLD = 60000;
+const AMOUNT_TO_UNIT_DIVISOR = 1000;
+
+function normalizeGermanText(input) {
+  return input
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss");
+}
 
 function detectCategory(input) {
-  const normalized = input.toLowerCase();
+  const normalized = normalizeGermanText(input);
   if (normalized.includes("beton")) return "beton";
-  if (normalized.includes("entwässer") || normalized.includes("entwaesser")) return "entwaesserung";
+  if (normalized.includes("entwaesser")) return "entwaesserung";
   if (normalized.includes("kabel")) return "kabel";
   return "generic";
 }
@@ -35,7 +51,8 @@ function buildGroundAssessment(category, amount) {
     type: "unklar (manuelle Prüfung empfohlen)",
   };
 
-  const isLikelyJustified = contractInfo.type === "besondere Leistung" || amount > 60000;
+  const isLikelyJustified =
+    contractInfo.type === "besondere Leistung" || amount > HIGH_VALUE_CLAIM_THRESHOLD;
 
   return {
     rating: isLikelyJustified
@@ -49,9 +66,12 @@ function buildGroundAssessment(category, amount) {
 function buildAmountAssessment(category, amount) {
   // Plausibilisierung der geforderten Höhe gegen simulierte Preisdaten
   const range = MARKET_PRICE_RANGES[category] || MARKET_PRICE_RANGES.generic;
-  const referenceUnitValue = amount / 1000;
+  const referenceUnitValue = amount / AMOUNT_TO_UNIT_DIVISOR;
   let rating = "Forderungsbetrag erscheint plausibel";
-  if (referenceUnitValue < range[0] * 0.8 || referenceUnitValue > range[1] * 1.2) {
+  if (
+    referenceUnitValue < range[0] * PRICE_LOWER_TOLERANCE ||
+    referenceUnitValue > range[1] * PRICE_UPPER_TOLERANCE
+  ) {
     rating = "Forderungsbetrag erscheint unplausibel";
   }
 
@@ -70,10 +90,12 @@ function selectRisks(category) {
 }
 
 function buildScheduleImpact(amount, risks) {
-  const days = Math.min(45, Math.max(5, Math.round(amount / 5000)));
-  return `Mögliche Terminfolge: Verzögerung relevanter Meilensteine um ca. ${days} Kalendertage. Primäre Treiber: ${risks
-    .map((risk) => risk.title)
-    .join(", ")}.`;
+  const days = Math.min(
+    MAX_SCHEDULE_DELAY_DAYS,
+    Math.max(MIN_SCHEDULE_DELAY_DAYS, Math.round(amount / AMOUNT_PER_DAY_FACTOR)),
+  );
+  const riskDrivers = risks.map((risk) => risk.title).join(", ");
+  return `Mögliche Terminfolge: Verzögerung relevanter Meilensteine um ca. ${days} Kalendertage. Primäre Treiber: ${riskDrivers}.`;
 }
 
 function buildRecommendation(ground, amount, riskList) {
