@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claim Manager AI-Assistent (Mock)</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="panel">
+        <h1>Claim Manager AI-Assistent (Mock)</h1>
+        <p class="muted">
+          Statische Demo zur KI-gestützten Claimprüfung im Contract & Claim Management – aktuell vollständig simuliert.
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>1) Claim-Dokumente aufnehmen (Simulation)</h2>
+        <div class="grid">
+          <label><input type="checkbox" name="docs" value="Nachtragsschreiben" checked /> Nachtragsschreiben (Dummy)</label>
+          <label><input type="checkbox" name="docs" value="Nachtragsangebot" checked /> Nachtragsangebot (Dummy)</label>
+          <label><input type="checkbox" name="docs" value="Vertrag" checked /> Vertrag (Dummy)</label>
+          <label><input type="checkbox" name="docs" value="Leistungsverzeichnis" /> Leistungsverzeichnis (Dummy)</label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2) Claim erfassen</h2>
+        <form id="claim-form" class="grid">
+          <label>
+            Claim-Bezeichnung
+            <input id="claim-name" type="text" placeholder="z. B. Mehrkosten Betonarbeiten BA 4" required />
+          </label>
+          <label>
+            Geforderter Betrag (EUR)
+            <input id="claim-amount" type="number" min="0" step="0.01" placeholder="75000" required />
+          </label>
+          <label>
+            Vertragsreferenz
+            <input id="contract-reference" type="text" placeholder="z. B. §4.2, Anlage 3" required />
+          </label>
+          <label>
+            Begründung
+            <textarea id="claim-justification" rows="4" placeholder="Kurzbegründung des Auftragnehmers" required></textarea>
+          </label>
+          <div class="actions">
+            <button id="analyze-btn" type="submit">3) KI-Analyse starten (Mock)</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="result-dashboard" class="panel" hidden>
+        <h2>4) Ergebnis-Dashboard</h2>
+        <h3>Bewertung dem Grunde nach</h3>
+        <p id="ground-rating"></p>
+        <p id="ground-details" class="muted"></p>
+
+        <h3>Bewertung der Höhe nach</h3>
+        <p id="amount-rating"></p>
+        <p id="amount-details" class="muted"></p>
+
+        <h3>Risikoeinschätzung</h3>
+        <ul id="risk-list"></ul>
+
+        <h3>Terminfolgen-Prüfung</h3>
+        <p id="schedule-impact"></p>
+
+        <h3>Empfehlung</h3>
+        <p id="recommendation"></p>
+      </section>
+
+      <section class="panel">
+        <h2>5) Textentwürfe generieren (Mock)</h2>
+        <div class="actions">
+          <button id="draft-negotiation" type="button" class="secondary">Verhandlungsvorbereitung</button>
+          <button id="draft-rejection" type="button" class="secondary">Ablehnungsschreiben</button>
+          <button id="draft-acceptance" type="button" class="secondary">Annahmeschreiben</button>
+        </div>
+        <label>
+          Entwurfsausgabe
+          <textarea id="draft-output" rows="10" readonly>Bitte zuerst eine KI-Analyse starten.</textarea>
+        </label>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
